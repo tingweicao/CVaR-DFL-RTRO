@@ -1,14 +1,16 @@
 ﻿# CVaR-DFL-RTRO
 
-This repository contains inference-only artifacts for the two load-forecasting case studies:
+This repository contains inference-only artifacts for two load-forecasting case studies:
 - typical load day
 - extreme load day
 
-The script reproduces plotting and CSV export from the original notebooks, but skips training and directly loads checkpoints.
+Training code is intentionally removed from standalone scripts. All scripts directly load checkpoints and run inference.
 
 ## Included Files
 
-- `load_inference_combined.py`
+- `load_inference_combined.py` (runs typical + extreme in one command)
+- `typical_load.py` (typical-only script, no training)
+- `extreme_load.py` (extreme-only script, no training)
 - `darts_logs/typical/*` checkpoint files
 - `darts_logs/extreme/*` checkpoint files
 - `requirements/*` copied from `darts-master/requirements`
@@ -18,6 +20,8 @@ The script reproduces plotting and CSV export from the original notebooks, but s
 ```text
 CVaR-DFL-RTRO/
   load_inference_combined.py
+  typical_load.py
+  extreme_load.py
   darts_logs/
     typical/
       _model.pth.tar
@@ -58,18 +62,30 @@ Place these CSV files in a RADFL directory:
 - `typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv`
 - `extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv`
 
-Default dataset location expected by the script:
+Default dataset location expected by scripts:
 - `./datasets/RADFL`
 
 ## Run
 
-From repository root:
+Combined run (both cases):
 
 ```bash
 python load_inference_combined.py --dataset-dir "<path-to-RADFL>" --no-show
 ```
 
-Arguments:
+Typical-only run:
+
+```bash
+python typical_load.py --dataset-dir "<path-to-RADFL>" --no-show
+```
+
+Extreme-only run:
+
+```bash
+python extreme_load.py --dataset-dir "<path-to-RADFL>" --no-show
+```
+
+Common arguments:
 - `--no-show`: save figures only, do not open plot windows
 - `--dataset-dir`: RADFL CSV directory
 - `--work-dir`: checkpoint root directory (default `./darts_logs`)
@@ -77,13 +93,19 @@ Arguments:
 
 ## Outputs
 
-For both `typical` and `extreme`, the script exports:
-- Figures: `typical_day_forecast.pdf/png`, `extreme_day_forecast.pdf/png`
-- Quantiles: `pred_quantiles.csv`, `pred_quantiles_extreme.csv`
-- Prediction intervals: `pred_ci_*.csv`, `pred_ci_*_extreme.csv`
-- Metrics printed to terminal: `RMSE`, `SMAPE`, `R^2`
+Typical script exports:
+- `typical_day_forecast.pdf/png`
+- `pred_quantiles.csv`
+- `pred_ci_*.csv`
+- metrics in terminal: `RMSE`, `SMAPE`, `R^2`
+
+Extreme script exports:
+- `extreme_day_forecast.pdf/png`
+- `pred_quantiles_extreme.csv`
+- `pred_ci_*_extreme.csv`
+- metrics in terminal: `RMSE`, `SMAPE`, `R^2`
 
 ## Notes
 
-- Plot style is aligned with the original notebook outputs.
+- Plot style is aligned with original notebook output style.
 - This repository provides inference assets and checkpoints, not training pipelines.
