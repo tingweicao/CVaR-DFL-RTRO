@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 import logging
 import warnings
 from dataclasses import dataclass
@@ -276,12 +276,43 @@ def main() -> None:
         action="store_true",
         help="Save figures only, do not display plot windows.",
     )
+    parser.add_argument(
+        "--dataset-dir",
+        type=str,
+        default=None,
+        help="Directory containing RADFL dataset CSVs. Default: ./datasets/RADFL",
+    )
+    parser.add_argument(
+        "--work-dir",
+        type=str,
+        default=None,
+        help="Directory containing checkpoint folders (typical/extreme). Default: ./darts_logs",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Directory for exported figures/CSVs. Default: script directory.",
+    )
     args = parser.parse_args()
 
     script_dir = Path(__file__).resolve().parent
-    dataset_dir = script_dir.parent / "datasets" / "RADFL"
-    work_dir = script_dir / "darts_logs"
-    output_dir = script_dir
+    dataset_dir = (
+        Path(args.dataset_dir).expanduser().resolve()
+        if args.dataset_dir
+        else script_dir / "datasets" / "RADFL"
+    )
+    work_dir = (
+        Path(args.work_dir).expanduser().resolve()
+        if args.work_dir
+        else script_dir / "darts_logs"
+    )
+    output_dir = (
+        Path(args.output_dir).expanduser().resolve()
+        if args.output_dir
+        else script_dir
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     cases = [
         CaseConfig(
@@ -322,3 +353,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
