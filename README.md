@@ -14,6 +14,30 @@ Training code is intentionally removed from standalone scripts. All scripts dire
 - `darts_logs/typical/*` checkpoint files
 - `darts_logs/extreme/*` checkpoint files
 - `requirements/*` copied from `darts-master/requirements`
+- `darts_definition_files/*` selected source definition files from `paper_FEDQR/darts-master/darts`
+
+## Darts Definition Mapping
+
+The scripts import these Darts APIs, with definitions mapped to the following files in this repo:
+
+- `from darts import TimeSeries`
+  - `darts_definition_files/darts/timeseries.py` (`class TimeSeries`)
+- `from darts.dataprocessing.transformers import Scaler`
+  - `darts_definition_files/darts/dataprocessing/transformers/scaler.py` (`class Scaler`)
+- `from darts.metrics import rmse, smape, r2_score`
+  - `darts_definition_files/darts/metrics/metrics.py` (`def rmse`, `def smape`, `def r2_score`)
+- `from darts.models import TFTModel`
+  - `darts_definition_files/darts/models/forecasting/tft_model.py` (`class TFTModel`)
+- `TFTModel.load_from_checkpoint(...)` (inherited implementation)
+  - `darts_definition_files/darts/models/forecasting/torch_forecasting_model.py` (`def load_from_checkpoint`)
+
+Entry-point import files are also included for traceability:
+- `darts_definition_files/darts/__init__.py`
+- `darts_definition_files/darts/dataprocessing/transformers/__init__.py`
+- `darts_definition_files/darts/metrics/__init__.py`
+- `darts_definition_files/darts/models/__init__.py`
+
+Note: `darts_definition_files/` is a source-reference snapshot. Runtime still uses installed `darts` package.
 
 ## Repository Layout
 
@@ -24,21 +48,24 @@ CVaR-DFL-RTRO/
   extreme_load.py
   darts_logs/
     typical/
-      _model.pth.tar
-      checkpoints/
-        best-epoch=99-val_loss=0.17.ckpt
-        last-epoch=199.ckpt
     extreme/
-      _model.pth.tar
-      checkpoints/
-        best-epoch=26-val_loss=0.82.ckpt
-        last-epoch=499.ckpt
   requirements/
     core.txt
     torch.txt
     release.txt
     dev.txt
     dev-all.txt
+  darts_definition_files/
+    darts/
+      __init__.py
+      timeseries.py
+      dataprocessing/transformers/__init__.py
+      dataprocessing/transformers/scaler.py
+      metrics/__init__.py
+      metrics/metrics.py
+      models/__init__.py
+      models/forecasting/tft_model.py
+      models/forecasting/torch_forecasting_model.py
 ```
 
 ## Environment
