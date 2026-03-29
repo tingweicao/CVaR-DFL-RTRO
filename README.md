@@ -1,19 +1,27 @@
 ﻿# CVaR-DFL-RTRO
 
-This repository contains inference-only artifacts for two load-forecasting case studies:
-- typical load day
-- extreme load day
+This repository contains inference-only artifacts for multiple forecasting/dispatch case studies.
 
-Training code is intentionally removed from standalone scripts. All scripts directly load checkpoints and run inference.
+## Included Scripts
 
-## Included Files
+- `load_inference_combined.py` (typical + extreme load inference)
+- `typical_load.py` (typical-only inference)
+- `extreme_load.py` (extreme-only inference)
+- `Dispatch.py` (converted from `RADFL_online_dispatch.ipynb`)
+- `RTRO.py` (converted from `ARH.ipynb`)
 
-- `load_inference_combined.py` (runs typical + extreme in one command)
-- `typical_load.py` (typical-only script, no training)
-- `extreme_load.py` (extreme-only script, no training)
+Training code is intentionally removed from standalone scripts where applicable. Scripts directly load checkpoint/data files and run inference/plotting.
+
+## Included Data and Artifacts
+
 - `darts_logs/typical/*` checkpoint files
 - `darts_logs/extreme/*` checkpoint files
-- `datasets/RADFL/*` CSV datasets used by `typical_load.py` and `extreme_load.py`
+- `datasets/RADFL/typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv`
+- `datasets/RADFL/extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv`
+- `datasets/RADFL/pred_quantiles_extreme.csv`
+- `datasets/RADFL/dispatch_placeholder_24h_15min_tunedCaps_v6.csv`
+- `datasets/RADFL/fig_iv03_parts/placeholder_rtro_trigger_day_extreme.csv`
+- `datasets/RADFL/fig_iv03_parts/placeholder_solver_runtime_all.csv`
 - `requirements/*` copied from `darts-master/requirements`
 - `darts_definition_files/*` selected source definition files from `paper_FEDQR/darts-master/darts`
 
@@ -47,6 +55,8 @@ CVaR-DFL-RTRO/
   load_inference_combined.py
   typical_load.py
   extreme_load.py
+  Dispatch.py
+  RTRO.py
   darts_logs/
     typical/
     extreme/
@@ -54,6 +64,11 @@ CVaR-DFL-RTRO/
     RADFL/
       typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv
       extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv
+      pred_quantiles_extreme.csv
+      dispatch_placeholder_24h_15min_tunedCaps_v6.csv
+      fig_iv03_parts/
+        placeholder_rtro_trigger_day_extreme.csv
+        placeholder_solver_runtime_all.csv
   requirements/
     core.txt
     torch.txt
@@ -88,55 +103,72 @@ Optional requirement sets:
 - `requirements/dev.txt`
 - `requirements/dev-all.txt`
 
-## Dataset Files
-
-The repository already includes both required dataset CSV files under `datasets/RADFL`:
-- `typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv`
-- `extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv`
-
-So you can run scripts directly from repository root without copying extra data.
-
 ## Run
 
-Combined run (both cases):
+Combined load inference:
 
 ```bash
 python load_inference_combined.py --no-show
 ```
 
-Typical-only run:
+Typical-only load inference:
 
 ```bash
 python typical_load.py --no-show
 ```
 
-Extreme-only run:
+Extreme-only load inference:
 
 ```bash
 python extreme_load.py --no-show
 ```
 
-Optional arguments:
-- `--dataset-dir`: override dataset directory (default `./datasets/RADFL`)
-- `--work-dir`: checkpoint root directory (default `./darts_logs`)
-- `--output-dir`: output directory for figures and CSVs (default script directory)
-- `--no-show`: save figures only, do not open plot windows
+Dispatch (from RADFL_online_dispatch):
+
+```bash
+python Dispatch.py
+```
+
+RTRO (from ARH notebook, placeholder mode by default):
+
+```bash
+python RTRO.py
+```
+
+RTRO with real logs:
+
+```bash
+python RTRO.py --use-real-logs
+```
+
+Common optional arguments are supported in scripts (e.g., `--dataset-dir`, `--work-dir`, `--output-dir`, `--out-dir`) to override default paths.
 
 ## Outputs
 
-Typical script exports:
+`typical_load.py` exports:
 - `typical_day_forecast.pdf/png`
 - `pred_quantiles.csv`
 - `pred_ci_*.csv`
-- metrics in terminal: `RMSE`, `SMAPE`, `R^2`
+- terminal metrics: `RMSE`, `SMAPE`, `R^2`
 
-Extreme script exports:
+`extreme_load.py` exports:
 - `extreme_day_forecast.pdf/png`
 - `pred_quantiles_extreme.csv`
 - `pred_ci_*_extreme.csv`
-- metrics in terminal: `RMSE`, `SMAPE`, `R^2`
+- terminal metrics: `RMSE`, `SMAPE`, `R^2`
+
+`Dispatch.py` exports:
+- `datasets/RADFL/dispatch_parts/dispatch.png`
+- `datasets/RADFL/dispatch_parts/dispatch.pdf`
+
+`RTRO.py` exports (default placeholder mode):
+- `datasets/RADFL/fig_iv03_parts/a_trigger_timeline.pdf/png`
+- `datasets/RADFL/fig_iv03_parts/b_runtime_per_solve.pdf/png`
+- `datasets/RADFL/fig_iv03_parts/c_cpu_time_day.pdf/png`
+- `datasets/RADFL/fig_iv03_parts/placeholder_rtro_trigger_day_extreme.csv`
+- `datasets/RADFL/fig_iv03_parts/placeholder_solver_runtime_all.csv`
 
 ## Notes
 
-- Plot style is aligned with original notebook output style.
-- This repository provides inference assets and checkpoints, not training pipelines.
+- Plot styles are aligned with original notebook output styles.
+- This repository provides inference/dispatch assets and checkpoints, not end-to-end training pipelines.
