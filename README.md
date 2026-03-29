@@ -13,6 +13,7 @@ Training code is intentionally removed from standalone scripts. All scripts dire
 - `extreme_load.py` (extreme-only script, no training)
 - `darts_logs/typical/*` checkpoint files
 - `darts_logs/extreme/*` checkpoint files
+- `datasets/RADFL/*` CSV datasets used by `typical_load.py` and `extreme_load.py`
 - `requirements/*` copied from `darts-master/requirements`
 - `darts_definition_files/*` selected source definition files from `paper_FEDQR/darts-master/darts`
 
@@ -49,6 +50,10 @@ CVaR-DFL-RTRO/
   darts_logs/
     typical/
     extreme/
+  datasets/
+    RADFL/
+      typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv
+      extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv
   requirements/
     core.txt
     torch.txt
@@ -83,40 +88,39 @@ Optional requirement sets:
 - `requirements/dev.txt`
 - `requirements/dev-all.txt`
 
-## Required Datasets
+## Dataset Files
 
-Place these CSV files in a RADFL directory:
+The repository already includes both required dataset CSV files under `datasets/RADFL`:
 - `typical_forecast_task_L14d_2022-10-13_to_2022-10-27.csv`
 - `extreme_forecast_task_L14d_2022-04-15_to_2022-04-29.csv`
 
-Default dataset location expected by scripts:
-- `./datasets/RADFL`
+So you can run scripts directly from repository root without copying extra data.
 
 ## Run
 
 Combined run (both cases):
 
 ```bash
-python load_inference_combined.py --dataset-dir "<path-to-RADFL>" --no-show
+python load_inference_combined.py --no-show
 ```
 
 Typical-only run:
 
 ```bash
-python typical_load.py --dataset-dir "<path-to-RADFL>" --no-show
+python typical_load.py --no-show
 ```
 
 Extreme-only run:
 
 ```bash
-python extreme_load.py --dataset-dir "<path-to-RADFL>" --no-show
+python extreme_load.py --no-show
 ```
 
-Common arguments:
-- `--no-show`: save figures only, do not open plot windows
-- `--dataset-dir`: RADFL CSV directory
+Optional arguments:
+- `--dataset-dir`: override dataset directory (default `./datasets/RADFL`)
 - `--work-dir`: checkpoint root directory (default `./darts_logs`)
 - `--output-dir`: output directory for figures and CSVs (default script directory)
+- `--no-show`: save figures only, do not open plot windows
 
 ## Outputs
 
