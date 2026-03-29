@@ -1,16 +1,19 @@
 ﻿# CVaR-DFL-RTRO
 
-This repository contains inference-only artifacts for multiple forecasting/dispatch case studies.
+This repository contains inference-only artifacts for forecasting case studies and optimization-demo scripts for robust microgrid dispatch.
 
 ## Included Scripts
 
 - `load_inference_combined.py` (typical + extreme load inference)
 - `typical_load.py` (typical-only inference)
 - `extreme_load.py` (extreme-only inference)
-- `Dispatch.py` (converted from `RADFL_online_dispatch.ipynb`)
-- `RTRO.py` (converted from `ARH.ipynb`)
+- `Dispatch.py` (converted from `RADFL_online_dispatch.ipynb`, plotting)
+- `RTRO.py` (converted from `ARH.ipynb`, plotting + placeholder logs)
+- `optimization_dispatch_demo.py` (new: TSRO dispatch demo with Gurobi)
+- `optimization_rtro_demo.py` (new: RTRO online re-optimization demo with Gurobi)
+- `optimization_core.py` (new: shared optimization core module)
 
-Training code is intentionally removed from standalone scripts where applicable. Scripts directly load checkpoint/data files and run inference/plotting.
+Training code is intentionally removed from standalone scripts where applicable. Scripts directly load checkpoint/data files and run inference/plotting/optimization demos.
 
 ## Included Data and Artifacts
 
@@ -57,6 +60,9 @@ CVaR-DFL-RTRO/
   extreme_load.py
   Dispatch.py
   RTRO.py
+  optimization_core.py
+  optimization_dispatch_demo.py
+  optimization_rtro_demo.py
   darts_logs/
     typical/
     extreme/
@@ -103,6 +109,14 @@ Optional requirement sets:
 - `requirements/dev.txt`
 - `requirements/dev-all.txt`
 
+For optimization demos, install Gurobi Python API in the active environment:
+
+```bash
+pip install gurobipy
+```
+
+You also need a valid Gurobi license (`grbgetkey` or existing `gurobi.lic`).
+
 ## Run
 
 Combined load inference:
@@ -123,25 +137,69 @@ Extreme-only load inference:
 python extreme_load.py --no-show
 ```
 
-Dispatch (from RADFL_online_dispatch):
+Dispatch plotting (from RADFL_online_dispatch):
 
 ```bash
 python Dispatch.py
 ```
 
-RTRO (from ARH notebook, placeholder mode by default):
+RTRO plotting (from ARH notebook, placeholder mode by default):
 
 ```bash
 python RTRO.py
 ```
 
-RTRO with real logs:
+RTRO plotting with real logs:
 
 ```bash
 python RTRO.py --use-real-logs
 ```
 
-Common optional arguments are supported in scripts (e.g., `--dataset-dir`, `--work-dir`, `--output-dir`, `--out-dir`) to override default paths.
+### Optimization Demo: TSRO Dispatch (Gurobi)
+
+```bash
+python optimization_dispatch_demo.py \
+  --dataset-dir ./datasets/RADFL \
+  --day 2022-04-29
+```
+
+Optional:
+
+```bash
+python optimization_dispatch_demo.py --solver-output
+```
+
+Default output:
+
+- `datasets/RADFL/dispatch_tsro_demo.csv`
+
+### Optimization Demo: RTRO Online Re-Optimization (Gurobi)
+
+```bash
+python optimization_rtro_demo.py \
+  --dataset-dir ./datasets/RADFL \
+  --day 2022-04-29
+```
+
+Optional threshold/window override:
+
+```bash
+python optimization_rtro_demo.py \
+  --xi-g 1e-3 --xi-c 0.05 --delta-min 1 --delta-max 8
+```
+
+Default outputs:
+
+- `datasets/RADFL/dispatch_rtro_demo.csv`
+- `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_demo.csv`
+- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_demo.csv`
+
+### Notes on the Optimization Demos
+
+- The optimization model follows the paper's two-stage robust structure: stage-1 schedule + stage-2 recourse under PI uncertainty (`q05/q50/q95`).
+- RTRO trigger follows the paper logic with normalized risk indicator and min/max trigger windows.
+- Dispatch output columns are aligned with `dispatch_placeholder_24h_15min_tunedCaps_v6.csv`.
+- Trigger/runtime output columns are aligned with `placeholder_rtro_trigger_day_extreme.csv` and `placeholder_solver_runtime_all.csv`.
 
 ## Outputs
 
@@ -168,7 +226,15 @@ Common optional arguments are supported in scripts (e.g., `--dataset-dir`, `--wo
 - `datasets/RADFL/fig_iv03_parts/placeholder_rtro_trigger_day_extreme.csv`
 - `datasets/RADFL/fig_iv03_parts/placeholder_solver_runtime_all.csv`
 
+`optimization_dispatch_demo.py` exports:
+- `datasets/RADFL/dispatch_tsro_demo.csv` (default)
+
+`optimization_rtro_demo.py` exports:
+- `datasets/RADFL/dispatch_rtro_demo.csv` (default)
+- `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_demo.csv` (default)
+- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_demo.csv` (default)
+
 ## Notes
 
 - Plot styles are aligned with original notebook output styles.
-- This repository provides inference/dispatch assets and checkpoints, not end-to-end training pipelines.
+- This repository provides inference/dispatch assets, optimization demo scripts, and checkpoints, not end-to-end training pipelines.
