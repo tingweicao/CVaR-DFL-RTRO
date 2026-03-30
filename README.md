@@ -11,6 +11,7 @@ This repository contains inference-only artifacts for forecasting case studies a
 - `RTRO.py` (converted from `ARH.ipynb`, plotting + placeholder logs)
 - `optimization_dispatch_demo.py` (new: TSRO dispatch demo with Gurobi)
 - `optimization_rtro_demo.py` (new: RTRO online re-optimization demo with Gurobi)
+- `optimization_pyomo_demo.py` (new: Pyomo TSRO/RTRO demo; solver selectable: appsi_highs/cplex/gurobi)
 - `optimization_core.py` (new: shared optimization core module)
 
 Training code is intentionally removed from standalone scripts where applicable. Scripts directly load checkpoint/data files and run inference/plotting/optimization demos.
@@ -25,6 +26,10 @@ Training code is intentionally removed from standalone scripts where applicable.
 - `datasets/RADFL/dispatch_placeholder_24h_15min_tunedCaps_v6.csv`
 - `datasets/RADFL/fig_iv03_parts/placeholder_rtro_trigger_day_extreme.csv`
 - `datasets/RADFL/fig_iv03_parts/placeholder_solver_runtime_all.csv`
+- `datasets/RADFL/dispatch_pyomo_demo.csv`
+- `datasets/RADFL/dispatch_pyomo_rtro_demo.csv`
+- `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_pyomo_demo.csv`
+- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_pyomo_demo.csv`
 - `requirements/*` copied from `darts-master/requirements`
 - `darts_definition_files/*` selected source definition files from `paper_FEDQR/darts-master/darts`
 
@@ -63,6 +68,7 @@ CVaR-DFL-RTRO/
   optimization_core.py
   optimization_dispatch_demo.py
   optimization_rtro_demo.py
+  optimization_pyomo_demo.py
   darts_logs/
     typical/
     extreme/
@@ -112,7 +118,7 @@ Optional requirement sets:
 For optimization demos, install Gurobi Python API in the active environment:
 
 ```bash
-pip install gurobipy
+pip install gurobipy pyomo highspy
 ```
 
 You also need a valid Gurobi license (`grbgetkey` or existing `gurobi.lic`).
@@ -194,6 +200,19 @@ Default outputs:
 - `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_demo.csv`
 - `datasets/RADFL/fig_iv03_parts/solver_runtime_day_demo.csv`
 
+
+### Optimization Demo: Pyomo (HiGHS/CPLEX/Gurobi)
+
+```bash
+python optimization_pyomo_demo.py --mode dispatch --solver auto --day 2022-04-29
+python optimization_pyomo_demo.py --mode rtro --solver auto --day 2022-04-29
+```
+
+Notes:
+- `--solver auto` currently resolves to `appsi_highs` in FEDM.
+- If your machine has CPLEX, use `--solver cplex` directly.
+- In current HiGHS runtime, RTRO demo keeps trigger evaluation and CSV export stable (no repeated re-solve).
+
 ### Notes on the Optimization Demos
 
 - The optimization model follows the paper's two-stage robust structure: stage-1 schedule + stage-2 recourse under PI uncertainty (`q05/q50/q95`).
@@ -233,6 +252,13 @@ Default outputs:
 - `datasets/RADFL/dispatch_rtro_demo.csv` (default)
 - `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_demo.csv` (default)
 - `datasets/RADFL/fig_iv03_parts/solver_runtime_day_demo.csv` (default)
+
+
+`optimization_pyomo_demo.py` exports:
+- `datasets/RADFL/dispatch_pyomo_demo.csv` (dispatch mode default)
+- `datasets/RADFL/dispatch_pyomo_rtro_demo.csv` (rtro mode default)
+- `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_pyomo_demo.csv` (rtro mode default)
+- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_pyomo_demo.csv` (rtro mode default)
 
 ## Notes
 
