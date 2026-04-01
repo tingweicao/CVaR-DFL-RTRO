@@ -1,4 +1,4 @@
-﻿# CVaR-DFL-RTRO
+# CVaR-DFL-RTRO
 
 This repository contains inference-only artifacts for forecasting case studies and optimization-demo scripts for robust microgrid dispatch.
 
@@ -12,6 +12,7 @@ This repository contains inference-only artifacts for forecasting case studies a
 - `optimization_dispatch_demo.py` (new: TSRO dispatch demo with Gurobi)
 - `optimization_rtro_demo.py` (new: RTRO online re-optimization demo with Gurobi)
 - `optimization_pyomo_demo.py` (new: Pyomo TSRO/RTRO demo; solver selectable: appsi_highs/cplex/gurobi)
+- `optimization_cvxpy_demo.py` (new: CVXPY TSRO/RTRO demo; solver selectable: CLARABEL/ECOS_BB/GUROBI)
 - `optimization_core.py` (new: shared optimization core module)
 
 Training code is intentionally removed from standalone scripts where applicable. Scripts directly load checkpoint/data files and run inference/plotting/optimization demos.
@@ -69,6 +70,7 @@ CVaR-DFL-RTRO/
   optimization_dispatch_demo.py
   optimization_rtro_demo.py
   optimization_pyomo_demo.py
+  optimization_cvxpy_demo.py
   darts_logs/
     typical/
     extreme/
@@ -115,13 +117,19 @@ Optional requirement sets:
 - `requirements/dev.txt`
 - `requirements/dev-all.txt`
 
-For optimization demos, install Gurobi Python API in the active environment:
+For optimization demos, install either the proprietary Gurobi stack or an open-source stack:
 
 ```bash
 pip install gurobipy pyomo highspy
 ```
 
-You also need a valid Gurobi license (`grbgetkey` or existing `gurobi.lic`).
+Open-source alternative:
+
+```bash
+pip install pyomo highspy cvxpy ecos
+```
+
+You only need a Gurobi license (`grbgetkey` or existing `gurobi.lic`) when using the Gurobi-based demos or the `GUROBI` CVXPY backend.
 
 ## Run
 
@@ -213,6 +221,18 @@ Notes:
 - If your machine has CPLEX, use `--solver cplex` directly.
 - In current HiGHS runtime, RTRO demo keeps trigger evaluation and CSV export stable (no repeated re-solve).
 
+### Optimization Demo: CVXPY (CLARABEL/ECOS_BB/GUROBI)
+
+```bash
+python optimization_cvxpy_demo.py --mode dispatch --solver auto --day 2022-04-29
+python optimization_cvxpy_demo.py --mode rtro --solver auto --day 2022-04-29
+```
+
+Notes:
+- `--solver auto` currently resolves to `CLARABEL` in the FEDM environment when `--use-binary-stage1` is not set.
+- If you enable `--use-binary-stage1`, `auto` switches to `ECOS_BB` unless `GUROBI` is explicitly requested.
+- CVXPY is the modeling layer here; the actual numerical backend is the installed CVXPY solver you select.
+
 ### Notes on the Optimization Demos
 
 - The optimization model follows the paper's two-stage robust structure: stage-1 schedule + stage-2 recourse under PI uncertainty (`q05/q50/q95`).
@@ -259,6 +279,12 @@ Notes:
 - `datasets/RADFL/dispatch_pyomo_rtro_demo.csv` (rtro mode default)
 - `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_pyomo_demo.csv` (rtro mode default)
 - `datasets/RADFL/fig_iv03_parts/solver_runtime_day_pyomo_demo.csv` (rtro mode default)
+
+`optimization_cvxpy_demo.py` exports:
+- `datasets/RADFL/dispatch_cvxpy_demo.csv` (dispatch mode default)
+- `datasets/RADFL/dispatch_cvxpy_rtro_demo.csv` (rtro mode default)
+- `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_cvxpy_demo.csv` (rtro mode default)
+- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_cvxpy_demo.csv` (rtro mode default)
 
 ## Notes
 
