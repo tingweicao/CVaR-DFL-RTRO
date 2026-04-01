@@ -423,6 +423,10 @@ def run_rtro(
     use_binary_stage1: bool,
     system_id: int,
     include_baselines: bool,
+    xi_g: float | None,
+    xi_c: float | None,
+    delta_min: int | None,
+    delta_max: int | None,
 ) -> Tuple[Path, Path, Path]:
     day_inputs = load_extreme_day_inputs(dataset_dir=dataset_dir, day=day)
     params = update_params_from_reference(MicrogridParams(), day_inputs)
@@ -430,6 +434,15 @@ def run_rtro(
     params.recourse_grid_kw = max(params.recourse_grid_kw, params.p_grid_max_kw)
     params.recourse_ess_kw = max(params.recourse_ess_kw, params.p_ess_max_kw)
     params.recourse_dg_kw = max(params.recourse_dg_kw, params.p_dg_max_kw)
+
+    if xi_g is not None:
+        params.rtro_xi_g = float(xi_g)
+    if xi_c is not None:
+        params.rtro_xi_c = float(xi_c)
+    if delta_min is not None:
+        params.rtro_delta_min_steps = int(delta_min)
+    if delta_max is not None:
+        params.rtro_delta_max_steps = int(delta_max)
 
     n = len(day_inputs.timestamps)
     buy_price_day, sell_price_day = build_tou_price_profile(day_inputs.timestamps)
@@ -584,6 +597,10 @@ def main() -> None:
 
     parser.add_argument("--system-id", type=int, choices=[33, 69], default=69)
     parser.add_argument("--no-baseline-runtime", action="store_true")
+    parser.add_argument("--xi-g", type=float, default=None, help="RTRO grid-side threshold xi_g")
+    parser.add_argument("--xi-c", type=float, default=None, help="RTRO cost-side threshold xi_c")
+    parser.add_argument("--delta-min", type=int, default=None, help="RTRO min trigger window (steps)")
+    parser.add_argument("--delta-max", type=int, default=None, help="RTRO max trigger window (steps)")
 
     args = parser.parse_args()
     solver_name = _resolve_solver_name(args.solver, requires_mip=bool(args.use_binary_stage1))
@@ -635,6 +652,10 @@ def main() -> None:
             use_binary_stage1=args.use_binary_stage1,
             system_id=args.system_id,
             include_baselines=not args.no_baseline_runtime,
+            xi_g=args.xi_g,
+            xi_c=args.xi_c,
+            delta_min=args.delta_min,
+            delta_max=args.delta_max,
         )
         print("Solver:", solver_name)
         print("Saved:")
