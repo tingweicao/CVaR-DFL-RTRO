@@ -31,6 +31,7 @@ Training code is intentionally removed from standalone scripts where applicable.
 - `datasets/RADFL/dispatch_pyomo_rtro_demo.csv`
 - `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_pyomo_demo.csv`
 - `datasets/RADFL/fig_iv03_parts/solver_runtime_day_pyomo_demo.csv`
+- `datasets/RADFL/README.md` (artifact layout guide)
 - `requirements/*` copied from `darts-master/requirements`
 - `darts_definition_files/*` selected source definition files from `paper_FEDQR/darts-master/darts`
 
@@ -290,17 +291,22 @@ Notes:
 
 If you need a no-Gurobi path that stays reasonably close to the paper artifacts, use:
 
+See `datasets/RADFL/README.md` for the artifact layout after generation.
+
 ```bash
 python reproduce_paper_approx_cvxpy.py
 ```
 
-This workflow generates:
-- `datasets/RADFL/dispatch_cvxpy_paper_repro.csv` for the dispatch-style result
-- `datasets/RADFL/dispatch_cvxpy_paper_repro_rtro.csv` for the tuned RTRO execution trace
-- `datasets/RADFL/rtro_trigger_day.csv` and `datasets/RADFL/fig_iv03_parts/rtro_trigger_day_cvxpy_paper_repro.csv`
-- `datasets/RADFL/fig_iv03_parts/solver_runtime_day_cvxpy_paper_repro.csv` with actual local CVXPY solve times
-- `datasets/RADFL/solver_runtime_all.csv` with paper-calibrated placeholder runtime distributions for plotting
-- `datasets/RADFL/cvxpy_paper_repro_metadata.json` with the recommended RTRO parameters and a summary
+This workflow generates archival outputs under `datasets/RADFL/paper_repro/`:
+- `datasets/RADFL/paper_repro/dispatch_cvxpy_paper_repro.csv`
+- `datasets/RADFL/paper_repro/dispatch_cvxpy_paper_repro_rtro.csv`
+- `datasets/RADFL/paper_repro/rtro_trigger_day_cvxpy_paper_repro.csv`
+- `datasets/RADFL/paper_repro/solver_runtime_day_cvxpy_paper_repro.csv`
+- `datasets/RADFL/paper_repro/cvxpy_paper_repro_metadata.json`
+
+It also refreshes the compatibility files expected by `RTRO.py --use-real-logs`:
+- `datasets/RADFL/rtro_trigger_day.csv`
+- `datasets/RADFL/solver_runtime_all.csv`
 
 Recommended RTRO parameters for the current dataset snapshot:
 - `xi_g = 0.06`

@@ -1,0 +1,26 @@
+{
+  "mode": "approximate_paper_reproduction_without_gurobi",
+  "day": "2022-04-29",
+  "solver": "CLARABEL",
+  "recommended_rtro_params": {
+    "xi_g": 0.06,
+    "xi_c": 0.8,
+    "delta_min": 4,
+    "delta_max": 12
+  },
+  "outputs": {
+    "dispatch_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\paper_repro\\dispatch_cvxpy_paper_repro.csv",
+    "dispatch_rtro_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\paper_repro\\dispatch_cvxpy_paper_repro_rtro.csv",
+    "trigger_archive_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\paper_repro\\rtro_trigger_day_cvxpy_paper_repro.csv",
+    "runtime_day_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\paper_repro\\solver_runtime_day_cvxpy_paper_repro.csv",
+    "compatibility_trigger_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\rtro_trigger_day.csv",
+    "compatibility_runtime_all_csv": "E:\\Probabilistic Forecasting\\paper_FEDQR\\CVaR-DFL-RTRO\\datasets\\RADFL\\solver_runtime_all.csv"
+  },
+  "summary": {
+    "trigger_count": 10,
+    "trigger_rows": 95,
+    "runtime_day_avg_s": 0.07044229090909092,
+    "runtime_day_max_s": 0.1255542999999999,
+    "runtime_all_mode": "paper_calibrated_placeholder"
+  }
+}

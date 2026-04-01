@@ -29,7 +29,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Approximate paper reproduction path without Gurobi. "
-            "Generates a CVXPY dispatch result, a tuned RTRO trigger/day result, and a paper-style runtime log."
+            "Generates CVXPY-based dispatch and RTRO artifacts plus compatibility files for plotting scripts."
         )
     )
     parser.add_argument("--dataset-dir", type=str, default=None, help="Dataset directory. Default: ./datasets/RADFL")
@@ -44,18 +44,19 @@ def main() -> None:
 
     script_dir = Path(__file__).resolve().parent
     dataset_dir = Path(args.dataset_dir).expanduser().resolve() if args.dataset_dir else script_dir / "datasets" / "RADFL"
-    fig_dir = dataset_dir / "fig_iv03_parts"
-    fig_dir.mkdir(parents=True, exist_ok=True)
+    paper_repro_dir = dataset_dir / "paper_repro"
+    paper_repro_dir.mkdir(parents=True, exist_ok=True)
 
     solver_name = _resolve_solver_name(args.solver, requires_mip=False)
 
-    dispatch_csv = dataset_dir / "dispatch_cvxpy_paper_repro.csv"
-    dispatch_rtro_csv = dataset_dir / "dispatch_cvxpy_paper_repro_rtro.csv"
-    trigger_csv = dataset_dir / "rtro_trigger_day.csv"
-    trigger_archive_csv = fig_dir / "rtro_trigger_day_cvxpy_paper_repro.csv"
-    runtime_day_csv = fig_dir / "solver_runtime_day_cvxpy_paper_repro.csv"
-    runtime_all_csv = dataset_dir / "solver_runtime_all.csv"
-    meta_json = dataset_dir / "cvxpy_paper_repro_metadata.json"
+    dispatch_csv = paper_repro_dir / "dispatch_cvxpy_paper_repro.csv"
+    dispatch_rtro_csv = paper_repro_dir / "dispatch_cvxpy_paper_repro_rtro.csv"
+    trigger_archive_csv = paper_repro_dir / "rtro_trigger_day_cvxpy_paper_repro.csv"
+    runtime_day_csv = paper_repro_dir / "solver_runtime_day_cvxpy_paper_repro.csv"
+    meta_json = paper_repro_dir / "cvxpy_paper_repro_metadata.json"
+
+    compatibility_trigger_csv = dataset_dir / "rtro_trigger_day.csv"
+    compatibility_runtime_all_csv = dataset_dir / "solver_runtime_all.csv"
 
     run_dispatch(
         dataset_dir=dataset_dir,
@@ -83,7 +84,7 @@ def main() -> None:
         delta_max=args.delta_max,
     )
 
-    shutil.copyfile(trigger_archive_csv, trigger_csv)
+    shutil.copyfile(trigger_archive_csv, compatibility_trigger_csv)
 
     runtime_log = build_placeholder_runtime_log(
         eval_start=EVAL_START_DATE,
@@ -92,7 +93,7 @@ def main() -> None:
         seed=RNG_SEED,
     )
     runtime_log = standardize_method_names(runtime_log)
-    runtime_log.to_csv(runtime_all_csv, index=False)
+    runtime_log.to_csv(compatibility_runtime_all_csv, index=False)
 
     trigger_df = pd.read_csv(trigger_archive_csv)
     runtime_day_df = pd.read_csv(runtime_day_path)
@@ -111,10 +112,10 @@ def main() -> None:
         "outputs": {
             "dispatch_csv": str(dispatch_csv),
             "dispatch_rtro_csv": str(dispatch_rtro_csv),
-            "trigger_csv": str(trigger_csv),
             "trigger_archive_csv": str(trigger_archive_csv),
             "runtime_day_csv": str(runtime_day_csv),
-            "runtime_all_csv": str(runtime_all_csv),
+            "compatibility_trigger_csv": str(compatibility_trigger_csv),
+            "compatibility_runtime_all_csv": str(compatibility_runtime_all_csv),
         },
         "summary": {
             "trigger_count": int(trigger_df["trigger"].sum()),
@@ -127,14 +128,15 @@ def main() -> None:
     meta_json.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     print("Solver:", solver_name)
-    print("Saved:")
+    print("Saved archival outputs:")
     print(" ", dispatch_csv)
     print(" ", dispatch_rtro_csv)
-    print(" ", trigger_csv)
     print(" ", trigger_archive_csv)
     print(" ", runtime_day_csv)
-    print(" ", runtime_all_csv)
     print(" ", meta_json)
+    print("Saved compatibility outputs:")
+    print(" ", compatibility_trigger_csv)
+    print(" ", compatibility_runtime_all_csv)
     print("Trigger count:", int(trigger_df["trigger"].sum()))
 
 
